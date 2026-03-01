@@ -1,14 +1,17 @@
-// public/uiQuote.js
+// Quote screen UI that supports creating and editing sales quotes.
 import { apiGet } from "./api.js"
 
+// Small helper for creating DOM elements.
 function el(tag){ return document.createElement(tag) }
 
+// Formats a number as currency for display.
 function money(n){
   const x = Number(n)
   if (!Number.isFinite(x)) return "$0.00"
   return "$" + x.toFixed(2)
 }
 
+// Calculates a line amount from price and quantity.
 function calcAmount(price, qty){
   const p = Number(price)
   const q = Number(qty)
@@ -16,6 +19,7 @@ function calcAmount(price, qty){
   return p * q
 }
 
+// Generic JSON request helper for POST and PUT calls.
 async function requestJson(url, method, body){
   const r = await fetch(url, {
     method,
@@ -26,6 +30,7 @@ async function requestJson(url, method, body){
   return j
 }
 
+// Builds a labeled input styled like the rest of the app.
 function makeInput(labelText, placeholder){
   const wrap = el("div")
   wrap.className = "pill"
@@ -52,6 +57,7 @@ function makeInput(labelText, placeholder){
   return { wrap, inp }
 }
 
+// Builds a labeled textarea styled like the rest of the app.
 function makeTextArea(labelText, placeholder){
   const wrap = el("div")
   wrap.className = "pill"
@@ -80,6 +86,7 @@ function makeTextArea(labelText, placeholder){
   return { wrap, inp }
 }
 
+// Creates the shared modal overlay used for pickers.
 function buildOverlay(){
   const overlay = el("div")
   overlay.className = "modalOverlay"
@@ -87,16 +94,19 @@ function buildOverlay(){
   return overlay
 }
 
+// Loads inventory items used by the inventory picker.
 async function loadInventory(){
   const res = await apiGet("/api/inventory")
   return Array.isArray(res.inventory) ? res.inventory : []
 }
 
+// Loads customers used by the customer picker.
 async function loadCustomers(){
   const res = await apiGet("/api/customers")
   return Array.isArray(res.customers) ? res.customers : []
 }
 
+// Renders the Sales Quote screen. Supports "new" and "edit" modes.
 export async function renderQuote(root, opts = { mode: "new" }){
   root.innerHTML = ""
 
@@ -118,6 +128,7 @@ export async function renderQuote(root, opts = { mode: "new" }){
   brand.appendChild(logo)
   brand.appendChild(sub)
 
+  // Header card contains customer and address details.
   const headerCard = el("div")
   headerCard.className = "card"
 
@@ -153,6 +164,7 @@ export async function renderQuote(root, opts = { mode: "new" }){
 
   const poNumber = makeInput("PO Number", "Optional")
 
+  // Truck number select field.
   const truckWrap = el("div")
   truckWrap.className = "pill"
   truckWrap.style.display = "grid"
@@ -200,6 +212,7 @@ export async function renderQuote(root, opts = { mode: "new" }){
   headerCard.appendChild(row3)
   headerCard.appendChild(addrRow)
 
+  // Lines card contains all quote line items and total.
   const linesCard = el("div")
   linesCard.className = "card"
 
@@ -238,6 +251,7 @@ export async function renderQuote(root, opts = { mode: "new" }){
   linesCard.appendChild(addRowBtn)
   linesCard.appendChild(totalRow)
 
+  // Actions card contains save, back, and error output.
   const actionsCard = el("div")
   actionsCard.className = "card"
 
@@ -279,11 +293,13 @@ export async function renderQuote(root, opts = { mode: "new" }){
 
   const lines = []
 
+  // Recomputes and displays the total from all current line items.
   function recomputeTotal(){
     const total = lines.reduce((sum, l) => sum + calcAmount(l.pricePerUnit.value, l.quantity.value), 0)
     totalValue.textContent = money(total)
   }
 
+  // Opens a modal to select an inventory item, then calls onPick with the item.
   function openInventoryPicker(onPick){
     overlay.innerHTML = ""
     overlay.style.display = "flex"
@@ -368,6 +384,7 @@ export async function renderQuote(root, opts = { mode: "new" }){
     search.inp.focus()
   }
 
+  // Opens a modal to select a customer and fills the header fields.
   function openCustomerPicker(){
     overlay.innerHTML = ""
     overlay.style.display = "flex"
@@ -463,6 +480,7 @@ export async function renderQuote(root, opts = { mode: "new" }){
     search.inp.focus()
   }
 
+  // Adds a new editable line item row to the quote.
   function addLine(){
     const lineWrap = el("div")
     lineWrap.className = "pill"
@@ -477,7 +495,6 @@ export async function renderQuote(root, opts = { mode: "new" }){
     itemId.inp.style.cursor = "pointer"
 
     const desc = makeInput("Description", "Editable description")
-    desc.inp.readOnly = false
 
     top.appendChild(itemId.wrap)
     top.appendChild(desc.wrap)
@@ -522,7 +539,6 @@ export async function renderQuote(root, opts = { mode: "new" }){
     itemId.inp.addEventListener("click", () => {
       openInventoryPicker(it => {
         itemId.inp.value = it.itemId || ""
-
         if (!desc.inp.value) desc.inp.value = it.description || ""
 
         const cost = Number(it.cost)
@@ -548,15 +564,14 @@ export async function renderQuote(root, opts = { mode: "new" }){
 
     table.appendChild(lineWrap)
 
-    const lineObj = {
+    lines.push({
       wrap: lineWrap,
       itemId: itemId.inp,
       description: desc.inp,
       pricePerUnit: pricePerUnit.inp,
       quantity: quantity.inp
-    }
+    })
 
-    lines.push(lineObj)
     recomputeTotal()
   }
 
@@ -567,6 +582,7 @@ export async function renderQuote(root, opts = { mode: "new" }){
 
   backBtn.addEventListener("click", () => { location.hash = "home" })
 
+  // Loads an existing quote into the form when in edit mode.
   if (opts && opts.mode === "edit" && opts.quoteId) {
     const r = await apiGet(`/api/quotes/${encodeURIComponent(opts.quoteId)}`)
     const q = r && r.quote ? r.quote : null
@@ -600,6 +616,7 @@ export async function renderQuote(root, opts = { mode: "new" }){
     }
   }
 
+  // Saves a new quote or updates an existing quote.
   saveBtn.addEventListener("click", async () => {
     err.textContent = ""
 

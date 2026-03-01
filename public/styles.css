@@ -1,0 +1,210 @@
+:root{
+  --bg0:#050913;
+  --bg1:#07162f;
+  --card:rgba(255,255,255,.06);
+  --card2:rgba(255,255,255,.09);
+  --stroke:rgba(255,255,255,.10);
+  --text:#ffffff;
+  --muted:rgba(255,255,255,.78);
+  --shadow:0 22px 60px rgba(0,0,0,.55);
+  --shadow2:0 12px 28px rgba(0,0,0,.40);
+  --r20:20px;
+  --r16:16px;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(1100px 700px at 15% 10%, rgba(64,131,255,.22), transparent 60%),
+    radial-gradient(900px 600px at 90% 25%, rgba(255,112,67,.18), transparent 55%),
+    radial-gradient(1000px 700px at 45% 120%, rgba(83,255,201,.10), transparent 55%),
+    linear-gradient(180deg, var(--bg1), var(--bg0));
+  min-height:100vh;
+}
+
+.app{
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 28px 18px 26px;
+  display: grid;
+  gap: 16px;
+}
+
+.topBrand{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  padding-top: 6px;
+}
+
+.brandLogo{
+  width: min(520px, 92vw);
+  height:auto;
+  filter: drop-shadow(0 18px 28px rgba(0,0,0,.60));
+}
+
+.subline{
+  text-align:center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.card{
+  border-radius: var(--r20);
+  background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.045));
+  border: 1px solid var(--stroke);
+  box-shadow: var(--shadow2);
+  padding: 18px;
+  backdrop-filter: blur(10px);
+}
+
+.cardTitle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.pill{
+  padding: 12px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+}
+
+.kpiLabel{
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: .2px;
+}
+
+.kpiValue{
+  font-size: 20px;
+  font-weight: 950;
+  letter-spacing: .3px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 760px){
+  .grid2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+}
+
+.btn{
+  width:100%;
+  border:0;
+  border-radius: 18px;
+  padding: 16px 16px;
+  cursor:pointer;
+  color:#07101f;
+  font-weight: 950;
+  font-size: 16px;
+  letter-spacing: .2px;
+  background: linear-gradient(135deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
+  box-shadow: var(--shadow);
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+
+.btn:hover{
+  filter: brightness(1.03);
+  transform: translateY(-1px);
+}
+
+.btn:active{
+  transform: translateY(0px);
+  box-shadow: 0 12px 26px rgba(0,0,0,.42);
+}
+
+.btnPrimary{
+  color:#ffffff;
+  background:
+    radial-gradient(120% 140% at 10% 10%, rgba(255,255,255,.20), transparent 60%),
+    linear-gradient(135deg, #ff6a2a, #ff2d55 55%, #2b6cff);
+  border: 1px solid rgba(255,255,255,.16);
+}
+
+.btnGhost{
+  color:#ffffff;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 12px 26px rgba(0,0,0,.34);
+}
+
+input, textarea {
+  pointer-events: auto;
+  user-select: text;
+}
+
+.pill {
+  pointer-events: auto;
+}
+
+.pill input, .pill textarea {
+  pointer-events: auto;
+}
+
+.btnSmall{
+  border:0;
+  border-radius: 14px;
+  padding: 12px 14px;
+  cursor:pointer;
+  color:#ffffff;
+  font-weight: 900;
+  font-size: 13px;
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.14);
+}
+
+.sectionHint{
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.footer{
+  text-align:center;
+  opacity:.72;
+  font-size: 12px;
+  padding: 8px 2px 2px;
+}
+
+.modalOverlay{
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(0,0,0,.65);
+  z-index: 9999;
+}
+
+.modalPanel{
+  width: min(820px, 94vw);
+  max-height: 86vh;
+  overflow: auto;
+}

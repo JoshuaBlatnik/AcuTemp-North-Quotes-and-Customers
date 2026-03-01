@@ -1,19 +1,22 @@
+/* Root level CSS variables for colors, shadows, and border radius values */
 :root{
-  --bg0:#050913;
-  --bg1:#07162f;
-  --card:rgba(255,255,255,.06);
-  --card2:rgba(255,255,255,.09);
-  --stroke:rgba(255,255,255,.10);
-  --text:#ffffff;
-  --muted:rgba(255,255,255,.78);
-  --shadow:0 22px 60px rgba(0,0,0,.55);
-  --shadow2:0 12px 28px rgba(0,0,0,.40);
-  --r20:20px;
-  --r16:16px;
+  --bg0:#050913; /* Dark background base */
+  --bg1:#07162f; /* Slightly lighter background layer */
+  --card:rgba(255,255,255,.06); /* Card background tone */
+  --card2:rgba(255,255,255,.09); /* Alternate card background */
+  --stroke:rgba(255,255,255,.10); /* Border color */
+  --text:#ffffff; /* Primary text color */
+  --muted:rgba(255,255,255,.78); /* Secondary muted text */
+  --shadow:0 22px 60px rgba(0,0,0,.55); /* Large shadow */
+  --shadow2:0 12px 28px rgba(0,0,0,.40); /* Medium shadow */
+  --r20:20px; /* Large border radius */
+  --r16:16px; /* Medium border radius */
 }
 
+/* Ensures padding and borders are included in total element width and height */
 *{ box-sizing:border-box; }
 
+/* Global body styling and layered background gradients */
 body{
   margin:0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
@@ -26,6 +29,7 @@ body{
   min-height:100vh;
 }
 
+/* Main app container layout */
 .app{
   max-width: 980px;
   margin: 0 auto;
@@ -34,6 +38,7 @@ body{
   gap: 16px;
 }
 
+/* Branding section layout */
 .topBrand{
   display:flex;
   flex-direction:column;
@@ -42,18 +47,21 @@ body{
   padding-top: 6px;
 }
 
+/* Logo sizing and shadow */
 .brandLogo{
   width: min(520px, 92vw);
   height:auto;
   filter: drop-shadow(0 18px 28px rgba(0,0,0,.60));
 }
 
+/* Subtitle text under logo */
 .subline{
   text-align:center;
   font-size: 13px;
   color: var(--muted);
 }
 
+/* Glass styled card container */
 .card{
   border-radius: var(--r20);
   background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.045));
@@ -63,6 +71,7 @@ body{
   backdrop-filter: blur(10px);
 }
 
+/* Card header layout */
 .cardTitle{
   display:flex;
   align-items:center;
@@ -73,6 +82,7 @@ body{
   margin-bottom: 12px;
 }
 
+/* Flexible horizontal row container */
 .row{
   display:flex;
   align-items:center;
@@ -81,6 +91,7 @@ body{
   flex-wrap:wrap;
 }
 
+/* Rounded information container */
 .pill{
   padding: 12px 12px;
   border-radius: 14px;
@@ -88,24 +99,28 @@ body{
   border: 1px solid rgba(255,255,255,.10);
 }
 
+/* KPI label styling */
 .kpiLabel{
   font-size: 12px;
   color: var(--muted);
   letter-spacing: .2px;
 }
 
+/* KPI value styling */
 .kpiValue{
   font-size: 20px;
   font-weight: 950;
   letter-spacing: .3px;
 }
 
+/* Single column grid layout */
 .grid{
   display:grid;
   grid-template-columns: 1fr;
   gap: 12px;
 }
 
+/* Two column grid layout for wider screens */
 @media (min-width: 760px){
   .grid2{
     display:grid;
@@ -114,6 +129,7 @@ body{
   }
 }
 
+/* Base button styling */
 .btn{
   width:100%;
   border:0;
@@ -129,16 +145,19 @@ body{
   transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
 }
 
+/* Button hover effect */
 .btn:hover{
   filter: brightness(1.03);
   transform: translateY(-1px);
 }
 
+/* Button active press effect */
 .btn:active{
   transform: translateY(0px);
   box-shadow: 0 12px 26px rgba(0,0,0,.42);
 }
 
+/* Primary gradient button */
 .btnPrimary{
   color:#ffffff;
   background:
@@ -147,6 +166,7 @@ body{
   border: 1px solid rgba(255,255,255,.16);
 }
 
+/* Ghost style button */
 .btnGhost{
   color:#ffffff;
   background: rgba(255,255,255,.08);
@@ -154,19 +174,23 @@ body{
   box-shadow: 0 12px 26px rgba(0,0,0,.34);
 }
 
+/* Ensures text inputs are interactive */
 input, textarea {
   pointer-events: auto;
   user-select: text;
 }
 
+/* Keeps pill containers interactive */
 .pill {
   pointer-events: auto;
 }
 
+/* Ensures inputs inside pill remain interactive */
 .pill input, .pill textarea {
   pointer-events: auto;
 }
 
+/* Smaller secondary button */
 .btnSmall{
   border:0;
   border-radius: 14px;
@@ -179,12 +203,14 @@ input, textarea {
   border: 1px solid rgba(255,255,255,.14);
 }
 
+/* Small hint text under sections */
 .sectionHint{
   margin-top: 10px;
   font-size: 12px;
   color: var(--muted);
 }
 
+/* Footer styling */
 .footer{
   text-align:center;
   opacity:.72;
@@ -192,6 +218,7 @@ input, textarea {
   padding: 8px 2px 2px;
 }
 
+/* Full screen modal overlay */
 .modalOverlay{
   position: fixed;
   inset: 0;
@@ -203,6 +230,7 @@ input, textarea {
   z-index: 9999;
 }
 
+/* Modal content panel */
 .modalPanel{
   width: min(820px, 94vw);
   max-height: 86vh;

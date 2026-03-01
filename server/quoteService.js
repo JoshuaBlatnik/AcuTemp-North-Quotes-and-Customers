@@ -1,20 +1,25 @@
+// Pads a number to seven digits with leading zeros.
 function pad7(n){
   return String(n).padStart(7, "0")
 }
 
+// Formats a sales quote id using the SQ prefix.
 function formatSq(n){
   return "SQ" + pad7(n)
 }
 
+// Normalizes a value for consistent string comparisons.
 function norm(v){
   return String(v || "").trim().toLowerCase()
 }
 
+// Safely converts a value to a number, returning null if invalid.
 function toNumber(v){
   const n = Number(String(v).trim())
   return Number.isFinite(n) ? n : null
 }
 
+// Computes the line amount from price and quantity.
 function computeAmount(price, qty){
   const p = toNumber(price)
   const q = toNumber(qty)
@@ -22,6 +27,7 @@ function computeAmount(price, qty){
   return p * q
 }
 
+// Cleans and standardizes incoming line items.
 function sanitizeLines(lines){
   const src = Array.isArray(lines) ? lines : []
   return src.map((x, idx) => {
@@ -42,8 +48,10 @@ function sanitizeLines(lines){
   })
 }
 
+// Computes the total for all provided line items.
 function computeTotal(lines){
   return sanitizeLines(lines).reduce((sum, l) => sum + (Number(l.amount) || 0), 0)
 }
 
+// Exports helpers used for quote formatting and calculations.
 module.exports = { formatSq, norm, sanitizeLines, computeTotal }

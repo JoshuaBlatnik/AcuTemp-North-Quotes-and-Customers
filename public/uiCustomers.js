@@ -1,7 +1,10 @@
+// Imports the GET helper used for loading customers, quotes, and sales orders.
 import { apiGet } from "./api.js"
 
+// Small helper for creating DOM elements.
 function el(tag){ return document.createElement(tag) }
 
+// Generic JSON request helper for POST, PUT, and DELETE calls.
 async function requestJson(url, method, body){
   const r = await fetch(url, {
     method,
@@ -12,6 +15,7 @@ async function requestJson(url, method, body){
   return j
 }
 
+// Builds a labeled text input styled like the rest of the UI.
 function inputBox(labelText, placeholder){
   const wrap = el("div")
   wrap.className = "pill"
@@ -38,6 +42,7 @@ function inputBox(labelText, placeholder){
   return { wrap, inp }
 }
 
+// Builds a labeled textarea styled like the rest of the UI.
 function textareaBox(labelText, placeholder){
   const wrap = el("div")
   wrap.className = "pill"
@@ -66,6 +71,7 @@ function textareaBox(labelText, placeholder){
   return { wrap, inp }
 }
 
+// Renders the Customers screen into the provided root element.
 export async function renderCustomers(root){
   root.innerHTML = ""
 
@@ -110,6 +116,7 @@ export async function renderCustomers(root){
   top.appendChild(title)
   top.appendChild(right)
 
+  // Search box shown above the list.
   const searchWrap = el("div")
   searchWrap.className = "pill"
   searchWrap.style.marginTop = "12px"
@@ -127,6 +134,7 @@ export async function renderCustomers(root){
 
   searchWrap.appendChild(searchInput)
 
+  // Add new customer form, hidden while searching.
   const addWrap = el("div")
   addWrap.className = "pill"
   addWrap.style.display = "grid"
@@ -163,6 +171,7 @@ export async function renderCustomers(root){
   addWrap.appendChild(addBtn)
   addWrap.appendChild(addErr)
 
+  // Customer list container.
   const listWrap = el("div")
   listWrap.className = "pill"
   listWrap.style.display = "grid"
@@ -204,25 +213,17 @@ export async function renderCustomers(root){
 
   let customers = []
 
-  function matchCustomer(c, q){
-    const s = (q || "").toLowerCase().trim()
-    if (!s) return true
-    const a = String(c.customerId || "").toLowerCase()
-    const b = String(c.name || "").toLowerCase()
-    const p = String(c.phone || "").toLowerCase()
-    return a.includes(s) || b.includes(s) || p.includes(s)
-  }
-
+  // Renders the visible customer list based on the search text.
   function renderList(){
     list.innerHTML = ""
     listErr.textContent = ""
 
-    const q = searchInput.value || ""
+    const q = String(searchInput.value || "").toLowerCase().trim()
     const filtered = customers.filter(c => {
       const name = String(c.name || "").toLowerCase()
       const id = String(c.customerId || "").toLowerCase()
       const phone = String(c.phone || "").toLowerCase()
-      return name.includes(q) || id.includes(q) || phone.includes(q)
+      return !q || name.includes(q) || id.includes(q) || phone.includes(q)
     })
 
     if (!filtered.length){
@@ -279,6 +280,7 @@ export async function renderCustomers(root){
       top.appendChild(left)
       top.appendChild(right)
 
+      // Row action buttons.
       const actions = el("div")
       actions.style.display = "flex"
       actions.style.gap = "10px"
@@ -305,6 +307,7 @@ export async function renderCustomers(root){
       actions.appendChild(newQuoteBtn)
       actions.appendChild(newSoBtn)
 
+      // Inline editor shown when the user clicks Edit.
       const editor = el("div")
       editor.className = "grid"
       editor.style.display = "none"
@@ -350,6 +353,7 @@ export async function renderCustomers(root){
       editor.appendChild(editActions)
       editor.appendChild(editErr)
 
+      // Customer quotes section.
       const quotesWrap = el("div")
       quotesWrap.className = "pill"
       quotesWrap.style.display = "grid"
@@ -371,6 +375,7 @@ export async function renderCustomers(root){
       quotesWrap.appendChild(qBtn)
       quotesWrap.appendChild(qList)
 
+      // Customer sales orders section.
       const soWrap = el("div")
       soWrap.className = "pill"
       soWrap.style.display = "grid"
@@ -408,6 +413,7 @@ export async function renderCustomers(root){
         editErr.textContent = ""
       })
 
+      // Saves customer edits to the server.
       saveBtn.addEventListener("click", async () => {
         editErr.textContent = ""
         try{
@@ -424,6 +430,7 @@ export async function renderCustomers(root){
         }
       })
 
+      // Deletes a customer after confirmation.
       delBtn.addEventListener("click", async () => {
         const ok = confirm("Delete " + c.name)
         if (!ok) return
@@ -436,6 +443,7 @@ export async function renderCustomers(root){
         }
       })
 
+      // Navigates to the quote screen and pre fills customer data.
       newQuoteBtn.addEventListener("click", () => {
         location.hash = "quote"
         setTimeout(() => {
@@ -444,6 +452,7 @@ export async function renderCustomers(root){
         }, 50)
       })
 
+      // Navigates to the sales order screen and pre fills customer data.
       newSoBtn.addEventListener("click", () => {
         location.hash = "so"
         setTimeout(() => {
@@ -452,6 +461,7 @@ export async function renderCustomers(root){
         }, 50)
       })
 
+      // Loads and renders quotes for this customer.
       qBtn.addEventListener("click", async () => {
         qList.innerHTML = ""
         try{
@@ -494,6 +504,7 @@ export async function renderCustomers(root){
             right2.style.alignItems = "center"
             right2.style.gap = "10px"
 
+            // Converts a quote into a sales order by pre filling the SO screen.
             const toSo = el("button")
             toSo.className = "btnSmall"
             toSo.textContent = "To SO"
@@ -533,6 +544,7 @@ export async function renderCustomers(root){
         }
       })
 
+      // Loads and renders sales orders for this customer.
       soBtn.addEventListener("click", async () => {
         soList.innerHTML = ""
         try{
@@ -567,9 +579,6 @@ export async function renderCustomers(root){
             b2.style.color = "rgba(255,255,255,.78)"
             b2.textContent = so.updatedAt ? new Date(so.updatedAt).toLocaleString() : ""
 
-            left2.appendChild(a2)
-            left2.appendChild(b2)
-
             const right2 = el("div")
             right2.style.display = "grid"
             right2.style.justifyItems = "end"
@@ -583,6 +592,8 @@ export async function renderCustomers(root){
             s2.style.color = "rgba(255,255,255,.78)"
             s2.textContent = "$" + Number(so.total || 0).toFixed(2)
 
+            left2.appendChild(a2)
+            left2.appendChild(b2)
             right2.appendChild(s1)
             right2.appendChild(s2)
 
@@ -608,12 +619,14 @@ export async function renderCustomers(root){
     })
   }
 
+  // Loads customers from the API and re renders the list.
   async function load(){
     const res = await apiGet("/api/customers")
     customers = Array.isArray(res.customers) ? res.customers : []
     renderList()
   }
 
+  // Hides the add form while the user is typing a search query.
   function updateSearchMode(){
     const has = String(searchInput.value || "").trim().length > 0
     addWrap.style.display = has ? "none" : "grid"
@@ -626,6 +639,7 @@ export async function renderCustomers(root){
 
   updateSearchMode()
 
+  // Creates a new customer from the add form.
   addBtn.addEventListener("click", async () => {
     addErr.textContent = ""
     try{

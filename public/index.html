@@ -1,20 +1,42 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Defines the character encoding for proper text rendering -->
     <meta charset="utf-8" />
+
+    <!-- Ensures responsive scaling on mobile devices -->
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Sets the browser tab title -->
     <title>AcuTemp North</title>
+
+    <!-- Links the main stylesheet -->
     <link rel="stylesheet" href="styles.css" />
+
+    <!-- Links the web app manifest for PWA support -->
     <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Sets the browser theme color for supported devices -->
     <meta name="theme-color" content="#0b0d12" />
+
+    <!-- Enables standalone app mode on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <!-- Controls the iOS status bar appearance -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <!-- Sets the app name when added to the iOS home screen -->
     <meta name="apple-mobile-web-app-title" content="AcuTemp North" />
+
+    <!-- Defines the icon used when added to the iOS home screen -->
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
   </head>
 
   <body>
+    <!-- Root container where the application renders -->
     <div id="root"></div>
+
+    <!-- Loads the main JavaScript module -->
     <script type="module" src="main.js"></script>
   </body>
 </html>

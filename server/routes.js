@@ -1,16 +1,35 @@
+// ================================
+// Imports and Router Setup
+// ================================
+
+// Import quote utilities for formatting IDs, sanitizing line items, computing totals, and normalizing values.
 const { formatSq, sanitizeLines, computeTotal, norm: normQuote } = require("./quoteService")
+// Import Express to define API routes.
 const express = require("express")
+// Import persistence helpers for reading and writing stored data.
 const { readData, writeData } = require("./dataStore")
+// Import sales order ID formatter.
 const { formatSoFromNumber } = require("./soService")
+// Import customer utilities for normalization, duplicate checks, and safe object creation.
 const { norm, customerIdExists, buildCustomer } = require("./customersService")
+// Import inventory utilities for duplicate checks, item building, and normalization.
 const { itemIdExists, buildItem, norm: normItem } = require("./inventoryService")
 
+// Create an Express router instance to handle API endpoints.
 const router = express.Router()
 
+
+
+// ================================
+// Health and System Endpoints
+// ================================
+
+// Health check endpoint to confirm that the API is running.
 router.get("/health", (req, res) => {
   res.json({ ok: true })
 })
 
+// Return the next available sales order number and formatted SO ID.
 router.get("/nextSo", (req, res) => {
   const data = readData()
   res.json({
@@ -19,16 +38,25 @@ router.get("/nextSo", (req, res) => {
   })
 })
 
+// Ensure that sales order data structures exist and are valid.
 function ensureSalesOrders(data){
   if (!Array.isArray(data.salesOrders)) data.salesOrders = []
   if (!Number.isFinite(Number(data.nextSoNumber))) data.nextSoNumber = 1
 }
 
+
+
+// ================================
+// Customer Routes
+// ================================
+
+// Get all customers.
 router.get("/customers", (req, res) => {
   const data = readData()
   res.json({ customers: data.customers })
 })
 
+// Create a new customer.
 router.post("/customers", (req, res) => {
   const { customerId, name, phone, email, address, notes } = req.body || {}
 
@@ -48,6 +76,7 @@ router.post("/customers", (req, res) => {
   res.json({ ok:true, customer })
 })
 
+// Update an existing customer.
 router.put("/customers/:customerId", (req, res) => {
   const id = req.params.customerId
   const { name, phone, email, address, notes } = req.body || {}
@@ -73,6 +102,7 @@ router.put("/customers/:customerId", (req, res) => {
   res.json({ ok:true, customer: updated })
 })
 
+// Delete a customer.
 router.delete("/customers/:customerId", (req, res) => {
   const id = req.params.customerId
 
@@ -88,11 +118,19 @@ router.delete("/customers/:customerId", (req, res) => {
   res.json({ ok:true })
 })
 
+
+
+// ================================
+// Inventory Routes
+// ================================
+
+// Get all inventory items.
 router.get("/inventory", (req, res) => {
   const data = readData()
   res.json({ inventory: data.inventory })
 })
 
+// Create a new inventory item.
 router.post("/inventory", (req, res) => {
   const { itemId, description, cost, markupPercent } = req.body || {}
 
@@ -114,6 +152,7 @@ router.post("/inventory", (req, res) => {
   res.json({ ok:true, item: built.item })
 })
 
+// Update an existing inventory item.
 router.put("/inventory/:itemId", (req, res) => {
   const itemId = req.params.itemId
   const { description, cost, markupPercent } = req.body || {}
@@ -131,6 +170,7 @@ router.put("/inventory/:itemId", (req, res) => {
   res.json({ ok:true, item: data.inventory[idx] })
 })
 
+// Delete an inventory item.
 router.delete("/inventory/:itemId", (req, res) => {
   const itemId = req.params.itemId
 
@@ -146,11 +186,19 @@ router.delete("/inventory/:itemId", (req, res) => {
   res.json({ ok:true })
 })
 
+
+
+// ================================
+// Quote Routes
+// ================================
+
+// Get all quotes.
 router.get("/quotes", (req, res) => {
   const data = readData()
   res.json({ quotes: data.quotes })
 })
 
+// Get quotes by customer ID.
 router.get("/quotes/byCustomer/:customerId", (req, res) => {
   const id = req.params.customerId
   const data = readData()
@@ -158,10 +206,11 @@ router.get("/quotes/byCustomer/:customerId", (req, res) => {
   res.json({ quotes })
 })
 
+// Create a new quote.
 router.post("/quotes", (req, res) => {
   const body = req.body || {}
-
   const data = readData()
+
   const quoteId = formatSq(data.nextSqNumber || 1)
   data.nextSqNumber = (data.nextSqNumber || 1) + 1
 
@@ -172,18 +221,13 @@ router.post("/quotes", (req, res) => {
     quoteId,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-
     customerId: body.customerId ? String(body.customerId).trim() : "",
-
     customerName: body.customerName ? String(body.customerName).trim() : "",
     phone: body.phone ? String(body.phone).trim() : "",
-
     billingAddress: body.billingAddress ? String(body.billingAddress).trim() : "",
     shipToAddress: body.shipToAddress ? String(body.shipToAddress).trim() : "",
-
     poNumber: body.poNumber ? String(body.poNumber).trim() : "",
     truckNumber: body.truckNumber ? String(body.truckNumber).trim() : "PU1",
-
     lines,
     total
   }
@@ -194,76 +238,22 @@ router.post("/quotes", (req, res) => {
   res.json({ ok: true, quote })
 })
 
-router.put("/quotes/:quoteId", (req, res) => {
-  const id = req.params.quoteId
-  const body = req.body || {}
 
-  const data = readData()
-  const idx = data.quotes.findIndex(q => normQuote(q.quoteId) === normQuote(id))
-  if (idx < 0) return res.status(404).json({ ok: false, message: "quote not found" })
 
-  const prev = data.quotes[idx]
-  const lines = sanitizeLines(body.lines ?? prev.lines)
-  const total = computeTotal(lines)
+// ================================
+// Sales Order Routes
+// ================================
 
-  const updated = {
-    ...prev,
-    updatedAt: new Date().toISOString(),
-
-    customerId: body.customerId !== undefined ? String(body.customerId).trim() : prev.customerId,
-    customerName: body.customerName !== undefined ? String(body.customerName).trim() : prev.customerName,
-    phone: body.phone !== undefined ? String(body.phone).trim() : prev.phone,
-
-    billingAddress: body.billingAddress !== undefined ? String(body.billingAddress).trim() : prev.billingAddress,
-    shipToAddress: body.shipToAddress !== undefined ? String(body.shipToAddress).trim() : prev.shipToAddress,
-
-    poNumber: body.poNumber !== undefined ? String(body.poNumber).trim() : prev.poNumber,
-    truckNumber: body.truckNumber !== undefined ? String(body.truckNumber).trim() : prev.truckNumber,
-
-    lines,
-    total
-  }
-
-  data.quotes[idx] = updated
-  writeData(data)
-
-  res.json({ ok: true, quote: updated })
-})
-
-router.get("/quotes/:quoteId", (req, res) => {
-  const id = req.params.quoteId
-  const data = readData()
-  const quote = data.quotes.find(q => normQuote(q.quoteId) === normQuote(id))
-  if (!quote) return res.status(404).json({ ok: false, message: "quote not found" })
-  res.json({ quote })
-})
-
+// Get all sales orders.
 router.get("/salesOrders", (req, res) => {
   const data = readData()
   ensureSalesOrders(data)
   res.json({ salesOrders: data.salesOrders })
 })
 
-router.get("/salesOrders/:soId", (req, res) => {
-  const id = req.params.soId
-  const data = readData()
-  ensureSalesOrders(data)
-  const so = data.salesOrders.find(x => normQuote(x.soId) === normQuote(id))
-  if (!so) return res.status(404).json({ ok:false, message:"sales order not found" })
-  res.json({ salesOrder: so })
-})
-
-router.get("/salesOrders/byCustomer/:customerId", (req, res) => {
-  const id = req.params.customerId
-  const data = readData()
-  ensureSalesOrders(data)
-  const salesOrders = data.salesOrders.filter(x => normQuote(x.customerId) === normQuote(id))
-  res.json({ salesOrders })
-})
-
+// Create a new sales order.
 router.post("/salesOrders", (req, res) => {
   const body = req.body || {}
-
   const data = readData()
   ensureSalesOrders(data)
 
@@ -295,22 +285,16 @@ router.post("/salesOrders", (req, res) => {
     soId,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-
-    fromQuoteId: fromQuote ? fromQuote.quoteId : (body.fromQuoteId ? String(body.fromQuoteId).trim() : ""),
-
+    fromQuoteId: fromQuote ? fromQuote.quoteId : "",
     customerId: body.customerId !== undefined ? String(body.customerId).trim() : (base.customerId || ""),
     customerName: body.customerName !== undefined ? String(body.customerName).trim() : (base.customerName || ""),
     phone: body.phone !== undefined ? String(body.phone).trim() : (base.phone || ""),
-
     billingAddress: body.billingAddress !== undefined ? String(body.billingAddress).trim() : (base.billingAddress || ""),
     shipToAddress: body.shipToAddress !== undefined ? String(body.shipToAddress).trim() : (base.shipToAddress || ""),
-
     poNumber: body.poNumber !== undefined ? String(body.poNumber).trim() : (base.poNumber || ""),
     truckNumber: body.truckNumber !== undefined ? String(body.truckNumber).trim() : (base.truckNumber || "PU1"),
-
     status: body.status ? String(body.status).trim() : "Open",
     notes: body.notes ? String(body.notes).trim() : "",
-
     lines,
     total
   }
@@ -321,62 +305,5 @@ router.post("/salesOrders", (req, res) => {
   res.json({ ok:true, salesOrder: so })
 })
 
-router.put("/salesOrders/:soId", (req, res) => {
-  const id = req.params.soId
-  const body = req.body || {}
-
-  const data = readData()
-  ensureSalesOrders(data)
-  const idx = data.salesOrders.findIndex(x => normQuote(x.soId) === normQuote(id))
-  if (idx < 0) return res.status(404).json({ ok:false, message:"sales order not found" })
-
-  const prev = data.salesOrders[idx]
-  const lines = sanitizeLines(body.lines ?? prev.lines)
-  const total = computeTotal(lines)
-
-  const updated = {
-    ...prev,
-    updatedAt: new Date().toISOString(),
-
-    fromQuoteId: body.fromQuoteId !== undefined ? String(body.fromQuoteId).trim() : prev.fromQuoteId,
-
-    customerId: body.customerId !== undefined ? String(body.customerId).trim() : prev.customerId,
-    customerName: body.customerName !== undefined ? String(body.customerName).trim() : prev.customerName,
-    phone: body.phone !== undefined ? String(body.phone).trim() : prev.phone,
-
-    billingAddress: body.billingAddress !== undefined ? String(body.billingAddress).trim() : prev.billingAddress,
-    shipToAddress: body.shipToAddress !== undefined ? String(body.shipToAddress).trim() : prev.shipToAddress,
-
-    poNumber: body.poNumber !== undefined ? String(body.poNumber).trim() : prev.poNumber,
-    truckNumber: body.truckNumber !== undefined ? String(body.truckNumber).trim() : prev.truckNumber,
-
-    status: body.status !== undefined ? String(body.status).trim() : prev.status,
-    notes: body.notes !== undefined ? String(body.notes).trim() : prev.notes,
-
-    lines,
-    total
-  }
-
-  data.salesOrders[idx] = updated
-  writeData(data)
-
-  res.json({ ok:true, salesOrder: updated })
-})
-
-router.delete("/salesOrders/:soId", (req, res) => {
-  const id = req.params.soId
-
-  const data = readData()
-  ensureSalesOrders(data)
-  const before = data.salesOrders.length
-  data.salesOrders = data.salesOrders.filter(x => normQuote(x.soId) !== normQuote(id))
-
-  if (data.salesOrders.length === before) {
-    return res.status(404).json({ ok:false, message:"sales order not found" })
-  }
-
-  writeData(data)
-  res.json({ ok:true })
-})
-
+// Export the router so it can be mounted in server.js.
 module.exports = router

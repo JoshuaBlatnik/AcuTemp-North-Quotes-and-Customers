@@ -1,13 +1,17 @@
+// Imports API helpers for loading, creating, updating, and deleting inventory items.
 import { apiGet, apiPost, apiPut, apiDelete } from "./api.js"
 
+// Small helper for creating DOM elements.
 function el(tag){ return document.createElement(tag) }
 
+// Formats a number as currency for display.
 function money(n){
   const x = Number(n)
   if (!Number.isFinite(x)) return ""
   return "$" + x.toFixed(2)
 }
 
+// Calculates the sell price from cost and a markup percent.
 function sellPrice(cost, markupPercent){
   const c = Number(cost)
   const m = Number(markupPercent)
@@ -15,6 +19,7 @@ function sellPrice(cost, markupPercent){
   return c * (1 + (m / 100))
 }
 
+// Renders the Inventory screen into the provided root element.
 export async function renderInventory(root){
   root.innerHTML = ""
 
@@ -36,6 +41,7 @@ export async function renderInventory(root){
   brand.appendChild(logo)
   brand.appendChild(sub)
 
+  // Card for adding a new item.
   const addCard = el("div")
   addCard.className = "card"
 
@@ -46,6 +52,7 @@ export async function renderInventory(root){
   const addGrid = el("div")
   addGrid.className = "grid"
 
+  // Creates a labeled input field styled like the rest of the app.
   function input(labelText, placeholder){
     const wrap = el("div")
     wrap.className = "pill"
@@ -96,6 +103,7 @@ export async function renderInventory(root){
   addCard.appendChild(addTitle)
   addCard.appendChild(addGrid)
 
+  // Card for searching and editing existing items.
   const listCard = el("div")
   listCard.className = "card"
 
@@ -160,6 +168,7 @@ export async function renderInventory(root){
 
   let inventory = []
 
+  // Renders the filtered inventory list and attaches per item actions.
   function renderList(){
     listErr.textContent = ""
     list.innerHTML = ""
@@ -236,10 +245,10 @@ export async function renderInventory(root){
       actions.appendChild(editBtn)
       actions.appendChild(delBtn)
 
+      // Inline editor shown when the user clicks Edit.
       const editor = el("div")
       editor.style.display = "none"
       editor.style.marginTop = "6px"
-      editor.style.display = "none"
       editor.className = "grid"
 
       const eDesc = input("Description", "Description")
@@ -291,6 +300,7 @@ export async function renderInventory(root){
         editErr.textContent = ""
       })
 
+      // Updates the item in the database, then reloads the list.
       saveBtn.addEventListener("click", async () => {
         editErr.textContent = ""
         try{
@@ -305,6 +315,7 @@ export async function renderInventory(root){
         }
       })
 
+      // Deletes the item after confirmation, then reloads the list.
       delBtn.addEventListener("click", async () => {
         const ok = confirm(`Delete ${item.itemId}`)
         if (!ok) return
@@ -321,6 +332,7 @@ export async function renderInventory(root){
     })
   }
 
+  // Loads inventory from the API and re renders the list.
   async function load(){
     const res = await apiGet("/api/inventory")
     inventory = Array.isArray(res.inventory) ? res.inventory : []
@@ -329,6 +341,7 @@ export async function renderInventory(root){
 
   searchInput.addEventListener("input", renderList)
 
+  // Creates a new inventory item, then reloads the list.
   addBtn.addEventListener("click", async () => {
     addErr.textContent = ""
     try{

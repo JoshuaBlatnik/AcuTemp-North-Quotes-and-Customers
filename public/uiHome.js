@@ -1,7 +1,10 @@
+// Imports the GET helper used to load the next service order number.
 import { apiGet } from "./api.js"
 
+// Small helper for creating DOM elements.
 function el(tag){ return document.createElement(tag) }
 
+// Renders the Home screen into the provided root element.
 export async function renderHome(root){
   root.innerHTML = ""
 
@@ -23,6 +26,7 @@ export async function renderHome(root){
   brand.appendChild(logo)
   brand.appendChild(sub)
 
+  // Status card showing the next service order id.
   const statusCard = el("div")
   statusCard.className = "card"
 
@@ -33,12 +37,15 @@ export async function renderHome(root){
   const l1 = el("div")
   l1.className = "kpiLabel"
   l1.textContent = "Next service order"
+
   const l2 = el("div")
   l2.className = "kpiValue"
   l2.textContent = "Loading"
+
   left.appendChild(l1)
   left.appendChild(l2)
 
+  // Quick access button group.
   const quick = el("div")
   quick.style.display = "flex"
   quick.style.gap = "10px"
@@ -59,6 +66,7 @@ export async function renderHome(root){
   statusCard.appendChild(top)
   statusCard.appendChild(tip)
 
+  // Navigation card with primary actions.
   const navCard = el("div")
   navCard.className = "card"
 
@@ -109,13 +117,14 @@ export async function renderHome(root){
 
   root.appendChild(app)
 
+  // Navigation events.
   goInventory.addEventListener("click", () => { location.hash = "inventory" })
   btnInventory.addEventListener("click", () => { location.hash = "inventory" })
-
   btnSO.addEventListener("click", () => { location.hash = "so" })
   btnQuote.addEventListener("click", () => { location.hash = "quote" })
   btnCustomers.addEventListener("click", () => { location.hash = "customers" })
 
+  // Loads the next service order id from the API.
   const so = await apiGet("/api/nextSo")
   l2.textContent = so.nextSoId
 }

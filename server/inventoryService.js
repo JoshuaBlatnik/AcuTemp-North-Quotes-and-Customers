@@ -1,17 +1,21 @@
+// Normalizes a value so comparisons are consistent (string, trimmed, lowercase).
 function norm(v){
   return String(v || "").trim().toLowerCase()
 }
 
+// Checks if an item id already exists (case and whitespace insensitive).
 function itemIdExists(items, itemId){
   const t = norm(itemId)
   return items.some(i => norm(i.itemId) === t)
 }
 
+// Safely converts a value to a number, returning null if invalid.
 function toNumber(v){
   const n = Number(String(v).trim())
   return Number.isFinite(n) ? n : null
 }
 
+// Builds a validated inventory item from incoming payload data.
 function buildItem(payload){
   const cost = toNumber(payload.cost)
   const markupPercent = toNumber(payload.markupPercent)
@@ -31,4 +35,5 @@ function buildItem(payload){
   }
 }
 
+// Exports helpers for inventory validation and formatting.
 module.exports = { itemIdExists, buildItem, norm }

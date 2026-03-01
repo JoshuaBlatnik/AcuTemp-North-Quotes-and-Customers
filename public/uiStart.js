@@ -1,16 +1,21 @@
+// Imports the GET helper for pulling app data from the API.
 import { apiGet } from "./api.js"
+// Imports the customer creation modal used on this screen.
 import { createCustomerModal } from "./uiCustomerModal.js"
 
+// Small helper for creating DOM elements.
 function el(tag) {
   return document.createElement(tag)
 }
 
+// Renders the start screen into the provided root element.
 export async function renderStartScreen(root) {
   root.innerHTML = ""
 
   const app = el("div")
   app.className = "app"
 
+  // Top header with branding and the New customer action.
   const header = el("div")
   header.className = "header"
 
@@ -51,6 +56,7 @@ export async function renderStartScreen(root) {
   header.appendChild(brand)
   header.appendChild(right)
 
+  // Status card showing the next service order id.
   const statusCard = el("div")
   statusCard.className = "card"
 
@@ -78,6 +84,7 @@ export async function renderStartScreen(root) {
   statusCard.appendChild(row)
   statusCard.appendChild(help)
 
+  // Navigation card for the next screens.
   const navCard = el("div")
   navCard.className = "card"
 
@@ -116,6 +123,7 @@ export async function renderStartScreen(root) {
   navCard.appendChild(navGrid)
   navCard.appendChild(navNote)
 
+  // Customer card shows a short list of recent customers.
   const customerCard = el("div")
   customerCard.className = "card"
 
@@ -139,6 +147,7 @@ export async function renderStartScreen(root) {
   custList.style.marginTop = "12px"
   custList.className = "grid"
 
+  // Renders up to six most recent customers into the list.
   function renderCustomers(customers) {
     custList.innerHTML = ""
     if (!customers.length) {
@@ -196,16 +205,19 @@ export async function renderStartScreen(root) {
 
   root.appendChild(app)
 
+  // Customer modal is created once and reused for saves.
   const modal = createCustomerModal(loadAll)
   document.body.appendChild(modal.overlay)
 
   newCustomerBtn.addEventListener("click", () => modal.open())
   refreshBtn.addEventListener("click", loadAll)
 
+  // Temporary navigation placeholders until the screens are wired in.
   quoteBtn.addEventListener("click", () => alert("Quoting screen is next"))
   invoiceBtn.addEventListener("click", () => alert("Invoice screen is after quoting"))
   inventoryBtn.addEventListener("click", () => alert("Inventory screen is after start screen"))
 
+  // Loads the next SO id and the current customer list.
   async function loadAll() {
     const so = await apiGet("/api/nextSo")
     soValue.textContent = so.nextSoId
